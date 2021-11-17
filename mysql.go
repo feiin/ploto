@@ -55,7 +55,7 @@ type Mysql struct {
 	}
 **/
 func (m Mysql) GetDialectDSN(database string, config map[string]interface{}) string {
-
+	//https://github.com/go-sql-driver/mysql
 	//[driver[:password]@(host)][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
 
 	charset := "utf8mb4"
