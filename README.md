@@ -2,6 +2,10 @@
 golang mysql/mssql 数据库简单封装
 
 
+## 说明
+
+仅对database/sql的DB.Query,DB.QueryContext进行封装，其他使用保持不变，Query结果Scan支持*Slice、*Struct、*Map、*int等基本类型.
+
 ## DialectConfig 配置结构说明
 
 配置支持多数据库连接，格式如下：
