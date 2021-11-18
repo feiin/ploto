@@ -15,6 +15,7 @@ It's not an ORM. works with `database/sql`
 仅对database/sql的DB.Query,DB.QueryContext进行封装，其他使用保持不变，Query结果Scan支持*Slice、*Struct、*Map、*int等基本类型.
 
 
+
 ## DialectConfig 配置结构说明
 
 配置支持多数据库连接，格式如下：
@@ -90,6 +91,74 @@ It's not an ORM. works with `database/sql`
 
 
 ## Using
+
+### Scan 使用
+
+> 支持对rows结果转化到struct,slice，int等
+
+```golang
+
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	"github.com/feiin/ploto"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+func main() {
+	db, err := sql.Open("mysql", "user:password@/database")
+	if err != nil {
+		panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
+	}
+	defer db.Close()
+
+	//scan rows to slices
+	var users []User
+	rows, err = db.Query("select * from users where id<100")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user User
+		err := ploto.Scan(rows, &user)
+		users = append(users, user)
+	}
+
+	//ScanResult等同上代码
+	var users []User
+	rows, err = db.Query("select * from users where id<100")
+	if err != nil {
+		panic(err)
+	}
+
+	//No need to Close
+	err := ploto.ScanResult(rows, &users)
+
+	//.....
+	// select count(1) as cnt from users
+
+	if rows.Next() {
+		var a int64
+		ploto.Scan(rows,&a)
+	}
+	//.....
+
+	// select * from users where id=1
+
+	if rows.Next() {
+		var user User 
+		ploto.Scan(rows,&user)
+	}
+	//.....
+}
+
+```
+
+### 配合多数据库管理使用
 
 ```
 package main
