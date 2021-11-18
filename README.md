@@ -45,7 +45,10 @@ It's not an ORM. works with `database/sql`
 				"multiStatements": true,
 				"writeTimeout": "3000ms",
 				"readTimeout": "3000ms",
-				"timeout":"3000ms"
+				"timeout":"3000ms",
+				"parseTime": true,
+				"loc":"Local",
+
 			}	
 		}
 	}}
@@ -94,7 +97,7 @@ It's not an ORM. works with `database/sql`
 
 ### 配合多数据库管理一起使用
 
-```
+```golang
 package main
 
 import (
