@@ -25,11 +25,7 @@ func getConfigMysql() (config Configs) {
 				"maxOpenConns": 5
 			},
 			"dialectOptions": {
-				"parseTime":true,
-				"multiStatements": true,
-				"writeTimeout": "3000ms",
-				"readTimeout": "3000ms",
-				"timeout":"3000ms"
+				"parseTime":true
 			}	
 		}
 	}}`
@@ -59,7 +55,7 @@ func TestMysqlDSNConfig(t *testing.T) {
 
 	t.Logf("dns %s", dnsPath)
 	// t.Logf("dnspath %s", dnsPath)
-	if dnsPath != "test:asfasdf%40%23sddfsdf@tcp(127.0.0.1:3307)/test?charset=utf8mb4&multiStatements=true&writeTimeout=3000ms&readTimeout=3000ms&timeout=3000ms&parseTime=true" {
+	if dnsPath != "test:asfasdf%40%23sddfsdf@tcp(127.0.0.1:3307)/test?charset=utf8mb4&parseTime=true" {
 		t.Errorf("mysql GetDialectDSN error ")
 	}
 }

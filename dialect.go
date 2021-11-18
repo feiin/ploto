@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	// "reflect"
 	// "strings"
+	"errors"
 	"time"
 )
 
@@ -23,15 +24,41 @@ type DialectDSN interface {
 }
 
 //CreateClient  create the db pool for  the database
-func (dialect *Dialect) CreateClient(database string, dsn DialectDSN) (db *DB, err error) {
+func (dialect *Dialect) CreateClient(database string) (db *DB, err error) {
 
 	config := dialect.getClientConfig(database)
 
+	var dsn DialectDSN = nil
+	var dialector = ""
+	var dbName = ""
+
+	if v, ok := config["dialect"]; ok {
+		dialector = v.(string)
+	}
+
+	if v, ok := config["database"]; ok {
+		dbName = v.(string)
+	}
+
+	if len(dbName) == 0 {
+		return nil, errors.New("invalid database config")
+	}
+
+	switch dialector {
+	case "mssql", "sqlserver":
+		dsn = Mssql{}
+	case "mysql":
+		dsn = Mysql{}
+	default:
+		dialect.logger.Error("connect to mysql database %s with invalid dialect", dbName, dialector)
+		return nil, err
+	}
+
 	dnsPath := dsn.GetDialectDSN(database, config)
 
-	driverDB, err := sql.Open(config["dialect"].(string), dnsPath)
+	driverDB, err := sql.Open(dialector, dnsPath)
 	if err != nil {
-		dialect.logger.Error("connect to mysql database %s error", config["database"].(string))
+		dialect.logger.Error("connect to mysql database %s error", dbName)
 		return nil, err
 	}
 

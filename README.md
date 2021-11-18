@@ -162,8 +162,7 @@ type Configs struct {
 func main() {
 
     configs := getConfig()
-    mysqlDSN := ploto.Mysql{}
-    db, err := ploto.Open(configs.Mysql, mysqlDSN, nil)
+    db, err := ploto.Open(configs.Mysql, nil)
     if err != nil {
         panic(err)
     }

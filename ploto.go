@@ -58,7 +58,7 @@ func (r *RowsResult) Raw() (*sql.Rows, error) {
 }
 
 //Init init all the database clients
-func Open(configs DialectConfig, dsn DialectDSN, log LoggerInterface) (*Dialect, error) {
+func Open(configs DialectConfig, log LoggerInterface) (*Dialect, error) {
 	dialect := &Dialect{}
 	dialect.Clients = make(map[string]*DB)
 	dialect.Configs = configs
@@ -71,7 +71,7 @@ func Open(configs DialectConfig, dsn DialectDSN, log LoggerInterface) (*Dialect,
 
 	for k := range configs.Clients {
 
-		db, err := dialect.CreateClient(k, dsn)
+		db, err := dialect.CreateClient(k)
 		if err != nil {
 			return nil, err
 		}
