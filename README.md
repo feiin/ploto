@@ -16,7 +16,7 @@ It's not an ORM. works with `database/sql`
 
 
 
-## DialectConfig 配置结构说明
+## 数据库配置
 
 配置支持多数据库连接，格式如下：
 
