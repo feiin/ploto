@@ -131,7 +131,9 @@ func getConfig() (config Configs) {
                 "multiStatements": true,
                 "writeTimeout": "3000ms",
                 "readTimeout": "3000ms",
-                "timeout":"3000ms"
+                "timeout":"3000ms",
+				"parseTime": true,
+				"loc":"Local",
             }   
         }
     }}`
