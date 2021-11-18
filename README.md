@@ -128,6 +128,7 @@ func main() {
 		users = append(users, user)
 	}
 
+
 	//ScanResult等同上代码
 	var users []User
 	rows, err = db.Query("select * from users where id<100")
