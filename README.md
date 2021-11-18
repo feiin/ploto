@@ -202,7 +202,7 @@ func main() {
 > 支持对rows结果转化到struct,slice，int等
 
 struct定义tag字段tag
-```
+```go
 type User struct {
     Id          int64  `db:"id"`
     Name        string `db:"name"`
