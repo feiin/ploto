@@ -1,10 +1,19 @@
 # ploto
-golang mysql/mssql 数据库简单封装
+
+A go Library for scan database/sql rows to struct、slice、other types.  And it support multiple databases connection management
+
+It's not an ORM. works with `database/sql`
+
+## 功能
+
+- Scan rows, 支持struct,slice,map,其他基本类型
+- 多数据库配置连接管理
 
 
 ## 说明
 
 仅对database/sql的DB.Query,DB.QueryContext进行封装，其他使用保持不变，Query结果Scan支持*Slice、*Struct、*Map、*int等基本类型.
+
 
 ## DialectConfig 配置结构说明
 
@@ -65,7 +74,7 @@ golang mysql/mssql 数据库简单封装
 		},
 		"default": {
 			"port": 1433,
-			"dialect": "sqlserver",
+			"dialect": "sqlserver", //or mssql
 			"pool": {
 				"maxIdleConns": 2,
 				"maxLeftTime": 60000,
