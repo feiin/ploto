@@ -174,6 +174,22 @@ func main() {
         panic(err)
     }
     fmt.Printf("users %+v", users)
+
+	//Exec....
+	result, err := db.Use("test").Exec("update users set name=? where  id=?","xxx",1)
+    if err != nil {
+		//...
+        panic(err)
+    }
+	
+	
+	//Exec....
+	result, err := db.Use("test").Exec("insert uesrs(name,created_time) values(?,now())","xxx")
+    if err != nil {
+		//...
+        panic(err)
+    }
+
 }
 
 ```
