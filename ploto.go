@@ -15,7 +15,7 @@ type RowsResult struct {
 }
 
 type RowResult struct {
-	*sql.Row
+	rows      *sql.Rows
 	LastError error
 }
 
@@ -24,16 +24,39 @@ func (db *DB) RawDB() *sql.DB {
 	return db.DB
 }
 
-//Query
+// Query executes a query that returns RowsResult, typically a SELECT.
+// The args are for any placeholder parameters in the query.
 func (db *DB) Query(query string, args ...interface{}) *RowsResult {
 	rs, err := db.DB.Query(query, args...)
 	return &RowsResult{rs, err}
 }
 
-//QueryContext
+// QueryContext executes a query that returns RowsResult, typically a SELECT.
+// The args are for any placeholder parameters in the query.
 func (db *DB) QueryContext(ctx context.Context, query string, args ...interface{}) *RowsResult {
 	rs, err := db.DB.QueryContext(ctx, query, args...)
 	return &RowsResult{rs, err}
+}
+
+// QueryRowContext executes a query that is expected to return at most one row.
+// QueryRowContext always returns a non-nil value. Errors are deferred until
+// Row's Scan method is called.
+// If the query selects no rows, the *Row's Scan will return ErrNoRows.
+// Otherwise, the *Row's Scan scans the first selected row and discards
+// the rest.
+func (db *DB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *RowResult {
+	rows, err := db.DB.QueryContext(ctx, query, args...)
+	return &RowResult{rows: rows, LastError: err}
+}
+
+// QueryRow executes a query that is expected to return at most one row.
+// QueryRow always returns a non-nil value. Errors are deferred until
+// Row's Scan method is called.
+// If the query selects no rows, the *Row's Scan will return ErrNoRows.
+// Otherwise, the *Row's Scan scans the first selected row and discards
+// the rest.
+func (db *DB) QueryRow(query string, args ...interface{}) *RowResult {
+	return db.QueryRowContext(context.Background(), query, args...)
 }
 
 //Close returns the connection to the connection pool
@@ -55,6 +78,40 @@ func (r *RowsResult) Scan(dest interface{}) error {
 //Raw
 func (r *RowsResult) Raw() (*sql.Rows, error) {
 	return r.Rows, r.LastError
+}
+
+//RowResult return the error of RowResult
+func (r *RowResult) Err() error {
+	return r.LastError
+}
+
+//Scan RowResult's scan
+func (r *RowResult) Scan(dest interface{}) error {
+
+	if r.Err() != nil {
+		return r.Err()
+	}
+
+	if r.rows.Err() != nil {
+		return r.rows.Err()
+	}
+	defer r.rows.Close()
+
+	if !r.rows.Next() {
+		if err := r.rows.Err(); err != nil {
+			return err
+		}
+		return sql.ErrNoRows
+	}
+
+	err := Scan(r.rows, dest)
+
+	if err != nil {
+		return err
+	}
+
+	// Make sure the query can be processed to completion with no errors.
+	return r.rows.Close()
 }
 
 //Init init all the database clients

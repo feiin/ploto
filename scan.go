@@ -180,5 +180,3 @@ func Scan(rows *sql.Rows, dest interface{}) error {
 
 	}
 }
-
-// func ScanRows
