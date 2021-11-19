@@ -12,7 +12,12 @@ It's not an ORM. works with `database/sql`
 
 ## 说明
 
-仅对database/sql的DB.Query,DB.QueryContext进行封装，其他使用保持不变，Query结果Scan支持*Slice、*Struct、*Map、*int等基本类型.
+
+仅对database/sql的DB.Query,DB.QueryContext,DB.QueryRow,DB.QueryRowContext进行封装，其他使用保持不变.
+
+
+- `Query/QueryContext` 结果Scan支持*Slice、*Struct、*Map、*int等基本类型.
+- `QueryRow/QueryRowContext` 结果Scan支持*Struct、*Map、*int等基本类型. 结果为空返回sql.ErrNoRows
 
 
 
