@@ -70,7 +70,6 @@ func (r *RowsResult) Scan(dest interface{}) error {
 	if r.Err() != nil {
 		return r.Err()
 	}
-	defer r.Rows.Close()
 	err := ScanResult(r.Rows, dest)
 	return err
 }
