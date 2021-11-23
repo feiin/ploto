@@ -22,10 +22,11 @@ func TestRowResultErr(t *testing.T) {
 
 func TestRowsResultErr(t *testing.T) {
 	rowResult := RowsResult{
+
 		LastError: sql.ErrNoRows,
 	}
 
-	if rowResult.Err() != sql.ErrNoRows {
+	if _, err := rowResult.Raw(); err != sql.ErrNoRows {
 		t.Fatalf("should be ErrNoRows")
 	}
 

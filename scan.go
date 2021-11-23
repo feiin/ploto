@@ -83,12 +83,14 @@ func ScanResult(rows *sql.Rows, dest interface{}) error {
 
 	if reflect.Slice == sliceType.Kind() {
 		//slice
-		ScanSlice(rows, dest)
+		err := ScanSlice(rows, dest)
+		return err
 
 	} else {
 		//other
 		if rows.Next() {
-			Scan(rows, dest)
+			err := Scan(rows, dest)
+			return err
 		}
 	}
 
