@@ -59,7 +59,7 @@ func initStructValues(item reflect.Value, columns []string, values []interface{}
 			fieldValue = item.FieldByName(strings.Title(column))
 		}
 
-		if !fieldValue.IsValid() || !fieldValue.CanSet() {
+		if !fieldValue.CanSet() {
 			values[i] = new(interface{})
 		} else {
 			//*Value
