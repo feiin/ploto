@@ -3,10 +3,13 @@ package ploto
 import (
 	"context"
 	"database/sql"
+	"github.com/feiin/sqlstring"
 )
 
 type DB struct {
 	*sql.DB
+	LogSql bool
+	logger LoggerInterface
 }
 
 type RowsResult struct {
@@ -27,6 +30,9 @@ func (db *DB) RawDB() *sql.DB {
 // Query executes a query that returns RowsResult, typically a SELECT.
 // The args are for any placeholder parameters in the query.
 func (db *DB) Query(query string, args ...interface{}) *RowsResult {
+	if db.LogSql {
+		db.logger.Info("query sql:%s", sqlstring.Format(query, args...))
+	}
 	rs, err := db.DB.Query(query, args...)
 	return &RowsResult{rs, err}
 }
@@ -34,6 +40,9 @@ func (db *DB) Query(query string, args ...interface{}) *RowsResult {
 // QueryContext executes a query that returns RowsResult, typically a SELECT.
 // The args are for any placeholder parameters in the query.
 func (db *DB) QueryContext(ctx context.Context, query string, args ...interface{}) *RowsResult {
+	if db.LogSql {
+		db.logger.Info("QueryContext sql:%s", sqlstring.Format(query, args...))
+	}
 	rs, err := db.DB.QueryContext(ctx, query, args...)
 	return &RowsResult{rs, err}
 }
@@ -45,6 +54,9 @@ func (db *DB) QueryContext(ctx context.Context, query string, args ...interface{
 // Otherwise, the *Row's Scan scans the first selected row and discards
 // the rest.
 func (db *DB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *RowResult {
+	if db.LogSql {
+		db.logger.Info("QueryRowContext sql:%s", sqlstring.Format(query, args...))
+	}
 	rows, err := db.DB.QueryContext(ctx, query, args...)
 	return &RowResult{rows: rows, LastError: err}
 }
@@ -56,6 +68,9 @@ func (db *DB) QueryRowContext(ctx context.Context, query string, args ...interfa
 // Otherwise, the *Row's Scan scans the first selected row and discards
 // the rest.
 func (db *DB) QueryRow(query string, args ...interface{}) *RowResult {
+	if db.LogSql {
+		db.logger.Info("QueryRow sql:%s", sqlstring.Format(query, args...))
+	}
 	return db.QueryRowContext(context.Background(), query, args...)
 }
 
@@ -128,6 +143,7 @@ func Open(configs DialectConfig, log LoggerInterface) (*Dialect, error) {
 	for k := range configs.Clients {
 
 		db, err := dialect.CreateClient(k)
+		db.logger = dialect.logger
 		if err != nil {
 			return nil, err
 		}

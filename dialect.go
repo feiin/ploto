@@ -92,14 +92,12 @@ func (dialect *Dialect) CreateClient(database string) (db *DB, err error) {
 		return nil, err
 	}
 
-	if _, ok := config["logging"]; ok {
-		// logging := config["logging"].(bool)
-		// db.LogMode(logging)
-		// db.SetLogger(MyDbLogger{})
-	}
-
 	//set db to the clients
 	db = &DB{DB: driverDB}
+
+	if _, ok := config["logging"]; ok {
+		db.LogSql = config["logging"].(bool)
+	}
 
 	// logger.Info("create mysql db %s client success", database)
 
