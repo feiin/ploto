@@ -143,10 +143,10 @@ func Open(configs DialectConfig, log LoggerInterface) (*Dialect, error) {
 	for k := range configs.Clients {
 
 		db, err := dialect.CreateClient(k)
-		db.logger = dialect.logger
 		if err != nil {
 			return nil, err
 		}
+		db.logger = dialect.logger
 		dialect.Clients[k] = db
 	}
 
