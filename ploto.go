@@ -82,6 +82,10 @@ func (r RowsResult) Close() error {
 //Scan
 func (r *RowsResult) Scan(dest interface{}) error {
 
+	if r.LastError != nil {
+		return r.LastError
+	}
+
 	if r.Err() != nil {
 		return r.Err()
 	}
@@ -101,6 +105,10 @@ func (r *RowResult) Err() error {
 
 //Scan RowResult's scan
 func (r *RowResult) Scan(dest interface{}) error {
+
+	if r.LastError != nil {
+		return r.LastError
+	}
 
 	if r.Err() != nil {
 		return r.Err()
