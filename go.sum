@@ -1,4 +1,4 @@
 github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/feiin/sqlstring v0.2.0 h1:n6zT0DUs5iGTKe1SDBR8x6FKUR9oSwIQ+LCRIlddtWs=
-github.com/feiin/sqlstring v0.2.0/go.mod h1:xpZTjVUw1nD3hMgF9SMRdPiooKSikLf4PS5j2NTn3RI=
+github.com/feiin/sqlstring v0.2.1 h1:oV0TV3smocLsfOrWDS7HPmwHVtfOeHqv+Rr6M1amrVQ=
+github.com/feiin/sqlstring v0.2.1/go.mod h1:xpZTjVUw1nD3hMgF9SMRdPiooKSikLf4PS5j2NTn3RI=

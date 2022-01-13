@@ -81,7 +81,7 @@ func (db *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
 		db.logger.Info("Exec sql:%s", sqlstring.Format(query, args...))
 	}
 
-	return db.DB.Exec(ctx, query, args...)
+	return db.DB.Exec(query, args...)
 }
 
 // ExecContext executes a query without returning any rows.

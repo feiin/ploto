@@ -188,6 +188,56 @@ func TestQueryContextRows(t *testing.T) {
 
 }
 
+func TestExecContext(t *testing.T) {
+
+	ctx := context.Background()
+
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer mockDB.Close()
+
+	mock.ExpectExec("update users").WillReturnResult(sqlmock.NewResult(1, 1))
+
+	db := &DB{DB: mockDB}
+
+	result, err := db.ExecContext(ctx, "update users set name='xxxx' WHERE id=1")
+
+	if err != nil {
+		t.Fatalf("query with error %+v", err)
+	}
+
+	affected, err := result.RowsAffected()
+
+	t.Logf("update:%d", affected)
+
+}
+
+func TestExec(t *testing.T) {
+
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer mockDB.Close()
+
+	mock.ExpectExec("update users").WillReturnResult(sqlmock.NewResult(1, 1))
+
+	db := &DB{DB: mockDB}
+
+	result, err := db.Exec("update users set name='xxxx' WHERE id=1")
+
+	if err != nil {
+		t.Fatalf("query with error %+v", err)
+	}
+
+	affected, err := result.RowsAffected()
+
+	t.Logf("update:%d", affected)
+
+}
+
 func TestQueryContextOneRow(t *testing.T) {
 
 	ctx := context.Background()
