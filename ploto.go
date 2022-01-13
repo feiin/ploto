@@ -74,6 +74,26 @@ func (db *DB) QueryRow(query string, args ...interface{}) *RowResult {
 	return db.QueryRowContext(context.Background(), query, args...)
 }
 
+// Exec executes a query without returning any rows.
+// The args are for any placeholder parameters in the query
+func (db *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
+	if db.LogSql {
+		db.logger.Info("Exec sql:%s", sqlstring.Format(query, args...))
+	}
+
+	return db.DB.Exec(ctx, query, args...)
+}
+
+// ExecContext executes a query without returning any rows.
+// The args are for any placeholder parameters in the query.
+func (db *DB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+	if db.LogSql {
+		db.logger.Info("ExecContext sql:%s", sqlstring.Format(query, args...))
+	}
+
+	return db.DB.ExecContext(ctx, query, args...)
+}
+
 //Close returns the connection to the connection pool
 func (r RowsResult) Close() error {
 	return r.Rows.Close()
