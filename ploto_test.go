@@ -272,3 +272,25 @@ func TestQueryContextOneRow(t *testing.T) {
 	}
 
 }
+
+func TestBeginTx(t *testing.T) {
+
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer mockDB.Close()
+
+	mock.ExpectBegin()
+
+	db := &DB{DB: mockDB}
+
+	result, err := db.Begin()
+
+	if err != nil {
+		t.Fatalf("Begin with error %+v", err)
+	}
+
+	t.Logf("Begin:%+v", result)
+
+}

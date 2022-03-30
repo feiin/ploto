@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/feiin/sqlstring"
+	"github.com/google/uuid"
 )
 
 type DB struct {
@@ -64,7 +65,6 @@ func (db *DB) QueryRowContext(ctx context.Context, query string, args ...interfa
 // QueryRow executes a query that is expected to return at most one row.
 // QueryRow always returns a non-nil value. Errors are deferred until
 // Row's Scan method is called.
-// If the query selects no rows, the *Row's Scan will return ErrNoRows.
 // Otherwise, the *Row's Scan scans the first selected row and discards
 // the rest.
 func (db *DB) QueryRow(query string, args ...interface{}) *RowResult {
@@ -179,4 +179,35 @@ func Open(configs DialectConfig, log LoggerInterface) (*Dialect, error) {
 	}
 
 	return dialect, nil
+}
+
+// Begin starts a transaction. The default isolation level is dependent on
+// the driver.
+func (db *DB) Begin() (*Tx, error) {
+	return db.BeginTx(context.Background(), nil)
+}
+
+// BeginTx starts a transaction.
+//
+// The provided context is used until the transaction is committed or rolled back.
+// If the context is canceled, the sql package will roll back
+// the transaction. Tx.Commit will return an error if the context provided to
+// BeginTx is canceled.
+//
+// The provided TxOptions is optional and may be nil if defaults should be used.
+// If a non-default isolation level is used that the driver doesn't support,
+// an error will be returned.
+func (db *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) {
+
+	transactionID := ""
+	if db.LogSql {
+
+		transactionID = uuid.New().String()
+		if db.LogSql {
+			db.logger.Info("Executing (%s): START TRANSACTION;", transactionID)
+		}
+	}
+
+	rawTx, err := db.DB.BeginTx(ctx, opts)
+	return &Tx{Tx: rawTx, TransactionID: transactionID, DB: db}, err
 }

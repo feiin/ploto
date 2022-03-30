@@ -63,7 +63,7 @@ func (m Mysql) GetDialectDSN(database string, config map[string]interface{}) str
 		charset = config["charset"].(string)
 	}
 
-	params := []string{config["user"].(string), ":", url.QueryEscape(config["password"].(string)), "@tcp(", config["host"].(string), ":", fmt.Sprintf("%d", int(config["port"].(float64))), ")/", config["database"].(string), "?charset=" + charset}
+	params := []string{config["user"].(string), ":", config["password"].(string), "@tcp(", config["host"].(string), ":", fmt.Sprintf("%d", int(config["port"].(float64))), ")/", config["database"].(string), "?charset=" + charset}
 
 	if _, ok := config["dialectOptions"]; ok {
 		//存在
