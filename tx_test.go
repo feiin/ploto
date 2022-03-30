@@ -6,7 +6,28 @@ import (
 	"testing"
 )
 
-func TestTransaction(t *testing.T) {
+type MyStdLogger struct {
+}
+
+func (m *MyStdLogger) Info(format string, v ...interface{}) {
+	fmt.Println(fmt.Sprintf(format, v...))
+
+}
+func (m *MyStdLogger) Debug(format string, v ...interface{}) {
+	fmt.Println(fmt.Sprintf(format, v...))
+
+}
+
+func (m *MyStdLogger) Warn(format string, v ...interface{}) {
+	fmt.Println(fmt.Sprintf(format, v...))
+
+}
+
+func (m *MyStdLogger) Error(format string, v ...interface{}) {
+	fmt.Println(fmt.Sprintf(format, v...))
+}
+
+func TestTransactionCommit(t *testing.T) {
 
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -20,6 +41,9 @@ func TestTransaction(t *testing.T) {
 	mock.ExpectCommit()
 
 	db := &DB{DB: mockDB}
+
+	db.LogSql = true
+	db.logger = &MyStdLogger{}
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -58,6 +82,8 @@ func TestTransactionRollback(t *testing.T) {
 	// mock.ExpectCommit()
 
 	db := &DB{DB: mockDB}
+	db.LogSql = true
+	db.logger = &MyStdLogger{}
 
 	tx, err := db.Begin()
 	defer func() {
