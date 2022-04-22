@@ -8,6 +8,7 @@ It's not an ORM. works with `database/sql`
 
 - Scan rows, 支持struct,slice,map,其他基本类型
 - 多数据库配置连接管理
+- sql日志
 
 
 ## 说明
@@ -18,6 +19,7 @@ It's not an ORM. works with `database/sql`
 
 - `Query/QueryContext` 结果Scan支持*Slice、*Struct、*Map、*int等基本类型.
 - `QueryRow/QueryRowContext` 结果Scan支持*Struct、*Map、*int等基本类型. 结果为空返回sql.ErrNoRows
+- `Tx`  事务增加transaction_id
 
 
 
