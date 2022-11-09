@@ -2,7 +2,8 @@
 
 A go Library for scan database/sql rows to struct、slice、other types.  And it support multiple databases connection management
 
-It's not an ORM. works with `database/sql`
+extensions to golang's database/sql
+ with `database/sql`
 
 ## 功能
 
