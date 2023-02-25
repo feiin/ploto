@@ -11,27 +11,22 @@ import (
 type MyStdLogger struct {
 }
 
-func (m *MyStdLogger) Info(format string, v ...interface{}) {
+func (m *MyStdLogger) Info(ctx context.Context, format string, v ...interface{}) {
 	fmt.Println(fmt.Sprintf(format, v...))
 
 }
-func (m *MyStdLogger) Debug(format string, v ...interface{}) {
-	fmt.Println(fmt.Sprintf(format, v...))
-
-}
-
-func (m *MyStdLogger) Warn(format string, v ...interface{}) {
+func (m *MyStdLogger) Debug(ctx context.Context, format string, v ...interface{}) {
 	fmt.Println(fmt.Sprintf(format, v...))
 
 }
 
-func (m *MyStdLogger) Error(format string, v ...interface{}) {
+func (m *MyStdLogger) Warn(ctx context.Context, format string, v ...interface{}) {
 	fmt.Println(fmt.Sprintf(format, v...))
+
 }
 
-func (m *MyStdLogger) WithContext(ctx context.Context) LoggerInterface {
-	//ctx with logger
-	return m
+func (m *MyStdLogger) Error(ctx context.Context, format string, v ...interface{}) {
+	fmt.Println(fmt.Sprintf(format, v...))
 }
 
 func TestTransactionCommit(t *testing.T) {

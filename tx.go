@@ -18,7 +18,7 @@ type Tx struct {
 func (tx *Tx) Commit() error {
 
 	if tx.DB.LogSql {
-		tx.DB.logger.WithContext(tx.TransactionCtx).Info("Executing (%s): COMMIT;", tx.TransactionID)
+		tx.DB.logger.Info(tx.TransactionCtx, "Executing (%s): COMMIT;", tx.TransactionID)
 
 	}
 	return tx.Tx.Commit()
@@ -35,7 +35,7 @@ func (tx *Tx) Exec(query string, args ...interface{}) (sql.Result, error) {
 // For example: an INSERT and UPDATE.
 func (tx *Tx) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	if tx.DB.LogSql {
-		tx.DB.logger.WithContext(ctx).Info("Executing (%s):%s", tx.TransactionID, sqlstring.Format(query, args...))
+		tx.DB.logger.Info(ctx, "Executing (%s):%s", tx.TransactionID, sqlstring.Format(query, args...))
 	}
 	return tx.Tx.ExecContext(ctx, query, args...)
 }
@@ -43,7 +43,7 @@ func (tx *Tx) ExecContext(ctx context.Context, query string, args ...interface{}
 // QueryContext executes a query that returns rows, typically a SELECT.
 func (tx *Tx) QueryContext(ctx context.Context, query string, args ...interface{}) *RowsResult {
 	if tx.DB.LogSql {
-		tx.DB.logger.WithContext(ctx).Info("Query (%s):%s", tx.TransactionID, sqlstring.Format(query, args...))
+		tx.DB.logger.Info(ctx, "Query (%s):%s", tx.TransactionID, sqlstring.Format(query, args...))
 	}
 	rs, err := tx.Tx.QueryContext(ctx, query, args...)
 	return &RowsResult{rs, err}
@@ -71,7 +71,7 @@ func (tx *Tx) QueryRow(query string, args ...interface{}) *RowResult {
 // the rest.
 func (tx *Tx) QueryRowContext(ctx context.Context, query string, args ...interface{}) *RowResult {
 	if tx.DB.LogSql {
-		tx.DB.logger.WithContext(ctx).Info("Query (%s):%s", tx.TransactionID, sqlstring.Format(query, args...))
+		tx.DB.logger.Info(ctx, "Query (%s):%s", tx.TransactionID, sqlstring.Format(query, args...))
 	}
 	rows, err := tx.Tx.QueryContext(ctx, query, args...)
 
@@ -85,7 +85,7 @@ func (tx *Tx) Rollback() error {
 		return err
 	}
 	if tx.DB.LogSql {
-		tx.DB.logger.WithContext(tx.TransactionCtx).Info("Executing (%s): ROLLBACK", tx.TransactionID)
+		tx.DB.logger.Info(tx.TransactionCtx, "Executing (%s): ROLLBACK", tx.TransactionID)
 	}
 	return nil
 }

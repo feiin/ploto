@@ -1,7 +1,9 @@
 package ploto
 
 import (
+	"context"
 	"database/sql"
+
 	// "reflect"
 	// "strings"
 	"errors"
@@ -27,7 +29,7 @@ type DialectDSN interface {
 func (dialect *Dialect) CreateClient(database string) (db *DB, err error) {
 
 	config := dialect.getClientConfig(database)
-
+	ctx := context.Background()
 	var dsn DialectDSN = nil
 	var dialector = ""
 	var dbName = ""
@@ -50,7 +52,7 @@ func (dialect *Dialect) CreateClient(database string) (db *DB, err error) {
 	case "mysql":
 		dsn = Mysql{}
 	default:
-		dialect.logger.Error("connect to mysql database %s with invalid dialect", dbName, dialector)
+		dialect.logger.Error(ctx, "connect to mysql database %s with invalid dialect", dbName, dialector)
 		return nil, err
 	}
 
@@ -58,7 +60,7 @@ func (dialect *Dialect) CreateClient(database string) (db *DB, err error) {
 
 	driverDB, err := sql.Open(dialector, dnsPath)
 	if err != nil {
-		dialect.logger.Error("connect to mysql database %s error", dbName)
+		dialect.logger.Error(ctx, "connect to mysql database %s error", dbName)
 		return nil, err
 	}
 
@@ -139,13 +141,14 @@ func (dialect *Dialect) getClientConfig(clientName string) (config map[string]in
 //Close  Close the database
 func (dialect *Dialect) Close() error {
 
+	ctx := context.Background()
 	for k, v := range dialect.Clients {
 		err := v.Close()
 		if err != nil {
-			dialect.logger.Info("close db %s error %+v", k, err)
+			dialect.logger.Info(ctx, "close db %s error %+v", k, err)
 			return err
 		}
-		dialect.logger.Info("close db %s success", k)
+		dialect.logger.Info(ctx, "close db %s success", k)
 
 	}
 	return nil

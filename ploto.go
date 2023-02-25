@@ -41,7 +41,7 @@ func (db *DB) Query(query string, args ...interface{}) *RowsResult {
 // The args are for any placeholder parameters in the query.
 func (db *DB) QueryContext(ctx context.Context, query string, args ...interface{}) *RowsResult {
 	if db.LogSql {
-		db.logger.WithContext(ctx).Info("QueryContext sql:%s", sqlstring.Format(query, args...))
+		db.logger.Info(ctx, "QueryContext sql:%s", sqlstring.Format(query, args...))
 	}
 	rs, err := db.DB.QueryContext(ctx, query, args...)
 	return &RowsResult{rs, err}
@@ -55,7 +55,7 @@ func (db *DB) QueryContext(ctx context.Context, query string, args ...interface{
 // the rest.
 func (db *DB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *RowResult {
 	if db.LogSql {
-		db.logger.WithContext(ctx).Info("QueryRowContext sql:%s", sqlstring.Format(query, args...))
+		db.logger.Info(ctx, "QueryRowContext sql:%s", sqlstring.Format(query, args...))
 	}
 	rows, err := db.DB.QueryContext(ctx, query, args...)
 	return &RowResult{rows: rows, LastError: err}
@@ -81,7 +81,7 @@ func (db *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
 // The args are for any placeholder parameters in the query.
 func (db *DB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	if db.LogSql {
-		db.logger.WithContext(ctx).Info("ExecContext sql:%s", sqlstring.Format(query, args...))
+		db.logger.Info(ctx, "ExecContext sql:%s", sqlstring.Format(query, args...))
 	}
 
 	return db.DB.ExecContext(ctx, query, args...)
@@ -197,7 +197,7 @@ func (db *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) {
 
 		transactionID = uuid.New().String()
 		if db.LogSql {
-			db.logger.WithContext(ctx).Info("Executing (%s): START TRANSACTION;", transactionID)
+			db.logger.Info(ctx, "Executing (%s): START TRANSACTION;", transactionID)
 		}
 	}
 

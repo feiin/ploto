@@ -7,33 +7,28 @@ import (
 )
 
 type LoggerInterface interface {
-	Debug(string, ...interface{})
-	Info(string, ...interface{})
-	Warn(string, ...interface{})
-	Error(string, ...interface{})
-	WithContext(ctx context.Context) LoggerInterface
+	Debug(context.Context, string, ...interface{})
+	Info(context.Context, string, ...interface{})
+	Warn(context.Context, string, ...interface{})
+	Error(context.Context, string, ...interface{})
 }
 
 type DefaultLogger struct {
 }
 
-func (l DefaultLogger) Debug(format string, v ...interface{}) {
+func (l DefaultLogger) Debug(ctx context.Context, format string, v ...interface{}) {
 	// fmt.FPrint(fmt.Sprintf(format, v...))
 	fmt.Fprintln(os.Stdout, fmt.Sprintf(format, v...))
 }
 
-func (l DefaultLogger) Info(format string, v ...interface{}) {
+func (l DefaultLogger) Info(ctx context.Context, format string, v ...interface{}) {
 	fmt.Fprintln(os.Stdout, fmt.Sprintf(format, v...))
 }
 
-func (l DefaultLogger) Warn(format string, v ...interface{}) {
+func (l DefaultLogger) Warn(ctx context.Context, format string, v ...interface{}) {
 	fmt.Fprintln(os.Stdout, fmt.Sprintf(format, v...))
 }
 
-func (l DefaultLogger) Error(format string, v ...interface{}) {
+func (l DefaultLogger) Error(ctx context.Context, format string, v ...interface{}) {
 	fmt.Fprintln(os.Stderr, fmt.Sprintf(format, v...))
-}
-
-func (l DefaultLogger) WithContext(ctx context.Context) LoggerInterface {
-	return l
 }
