@@ -1,6 +1,7 @@
 package ploto
 
 import (
+	"context"
 	"fmt"
 	"os"
 )
@@ -10,6 +11,7 @@ type LoggerInterface interface {
 	Info(string, ...interface{})
 	Warn(string, ...interface{})
 	Error(string, ...interface{})
+	WithContext(ctx context.Context) LoggerInterface
 }
 
 type DefaultLogger struct {
@@ -30,4 +32,8 @@ func (l DefaultLogger) Warn(format string, v ...interface{}) {
 
 func (l DefaultLogger) Error(format string, v ...interface{}) {
 	fmt.Fprintln(os.Stderr, fmt.Sprintf(format, v...))
+}
+
+func (l DefaultLogger) WithContext(ctx context.Context) LoggerInterface {
+	return l
 }

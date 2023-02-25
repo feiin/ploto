@@ -1,9 +1,11 @@
 package ploto
 
 import (
+	"context"
 	"fmt"
-	"github.com/DATA-DOG/go-sqlmock"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
 )
 
 type MyStdLogger struct {
@@ -25,6 +27,11 @@ func (m *MyStdLogger) Warn(format string, v ...interface{}) {
 
 func (m *MyStdLogger) Error(format string, v ...interface{}) {
 	fmt.Println(fmt.Sprintf(format, v...))
+}
+
+func (m *MyStdLogger) WithContext(ctx context.Context) LoggerInterface {
+	//ctx with logger
+	return m
 }
 
 func TestTransactionCommit(t *testing.T) {

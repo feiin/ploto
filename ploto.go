@@ -3,6 +3,7 @@ package ploto
 import (
 	"context"
 	"database/sql"
+
 	"github.com/feiin/sqlstring"
 	"github.com/google/uuid"
 )
@@ -31,18 +32,16 @@ func (db *DB) RawDB() *sql.DB {
 // Query executes a query that returns RowsResult, typically a SELECT.
 // The args are for any placeholder parameters in the query.
 func (db *DB) Query(query string, args ...interface{}) *RowsResult {
-	if db.LogSql {
-		db.logger.Info("query sql:%s", sqlstring.Format(query, args...))
-	}
-	rs, err := db.DB.Query(query, args...)
-	return &RowsResult{rs, err}
+	ctx := context.Background()
+	return db.QueryContext(ctx, query, args...)
+
 }
 
 // QueryContext executes a query that returns RowsResult, typically a SELECT.
 // The args are for any placeholder parameters in the query.
 func (db *DB) QueryContext(ctx context.Context, query string, args ...interface{}) *RowsResult {
 	if db.LogSql {
-		db.logger.Info("QueryContext sql:%s", sqlstring.Format(query, args...))
+		db.logger.WithContext(ctx).Info("QueryContext sql:%s", sqlstring.Format(query, args...))
 	}
 	rs, err := db.DB.QueryContext(ctx, query, args...)
 	return &RowsResult{rs, err}
@@ -56,7 +55,7 @@ func (db *DB) QueryContext(ctx context.Context, query string, args ...interface{
 // the rest.
 func (db *DB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *RowResult {
 	if db.LogSql {
-		db.logger.Info("QueryRowContext sql:%s", sqlstring.Format(query, args...))
+		db.logger.WithContext(ctx).Info("QueryRowContext sql:%s", sqlstring.Format(query, args...))
 	}
 	rows, err := db.DB.QueryContext(ctx, query, args...)
 	return &RowResult{rows: rows, LastError: err}
@@ -68,27 +67,21 @@ func (db *DB) QueryRowContext(ctx context.Context, query string, args ...interfa
 // Otherwise, the *Row's Scan scans the first selected row and discards
 // the rest.
 func (db *DB) QueryRow(query string, args ...interface{}) *RowResult {
-	if db.LogSql {
-		db.logger.Info("QueryRow sql:%s", sqlstring.Format(query, args...))
-	}
 	return db.QueryRowContext(context.Background(), query, args...)
 }
 
 // Exec executes a query without returning any rows.
 // The args are for any placeholder parameters in the query
 func (db *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
-	if db.LogSql {
-		db.logger.Info("Exec sql:%s", sqlstring.Format(query, args...))
-	}
 
-	return db.DB.Exec(query, args...)
+	return db.ExecContext(context.Background(), query, args...)
 }
 
 // ExecContext executes a query without returning any rows.
 // The args are for any placeholder parameters in the query.
 func (db *DB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	if db.LogSql {
-		db.logger.Info("ExecContext sql:%s", sqlstring.Format(query, args...))
+		db.logger.WithContext(ctx).Info("ExecContext sql:%s", sqlstring.Format(query, args...))
 	}
 
 	return db.DB.ExecContext(ctx, query, args...)
@@ -204,10 +197,10 @@ func (db *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) {
 
 		transactionID = uuid.New().String()
 		if db.LogSql {
-			db.logger.Info("Executing (%s): START TRANSACTION;", transactionID)
+			db.logger.WithContext(ctx).Info("Executing (%s): START TRANSACTION;", transactionID)
 		}
 	}
 
 	rawTx, err := db.DB.BeginTx(ctx, opts)
-	return &Tx{Tx: rawTx, TransactionID: transactionID, DB: db}, err
+	return &Tx{Tx: rawTx, TransactionID: transactionID, DB: db, TransactionCtx: ctx}, err
 }
