@@ -1,6 +1,6 @@
 # ploto
 
-A go Library for scan database/sql rows to struct、slice、other types.  And it support multiple databases connection management
+A go Library for scan database/sql rows to struct、slice、other types, and support SQL logging
 
 extensions to golang's database/sql
 
@@ -23,81 +23,6 @@ extensions to golang's database/sql
 
 
 
-## 数据库配置
-
-配置支持多数据库连接，格式如下：
-
-### mysql 
-```json
-{"mysql": {
-		"clients": {
-			"test":{
-				"host": "127.0.0.1",
-				"port": 3307,
-				"user": "test",
-				"password": "asfasdf@#sddfsdf",
-				"database": "test"
-			}
-		},
-		"default": {
-			"port": 3306,
-			"dialect": "mysql",
-			"pool": {
-				"maxIdleConns": 2,
-				"maxLeftTime": 60000, 
-				"maxOpenConns": 5
-			},
-			"dialectOptions": {
-				"parseTime":true,
-				"multiStatements": true,
-				"writeTimeout": "3000ms",
-				"readTimeout": "3000ms",
-				"timeout":"3000ms",
-				"parseTime": true,
-				"loc":"Local",
-
-			}	
-		}
-	}}
-```
-更多dialectOptions参数见: https://github.com/go-sql-driver/mysql#parameters
-### mssql
-
-```
-{"mssql": {
-		"clients": {
-	 
-			"test":{
-				"host": "127.0.0.1",
-				"user": "sa",
-				"password": "test123",
-				"database": "test",
-				"pool": {
-					"maxIdleConns": 20,
-					"maxLeftTime": 60000,
-					"maxOpenConns": 50
-				},
-				"dialectOptions": {
-					"dial timeout": "10"
-
-				}
-			}
-		},
-		"default": {
-			"port": 1433,
-			"dialect": "sqlserver", //or mssql
-			"pool": {
-				"maxIdleConns": 2,
-				"maxLeftTime": 60000,
-				"maxOpenConns": 5
-			},
-			"dialectOptions": {
-				"dial timeout": "3"
-			}
-		}
-	}}
-```
-更多dialectOptions 参数见:https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn
 
 
 ## Using
@@ -113,6 +38,26 @@ import (
     "github.com/feiin/ploto"
      _ "github.com/go-sql-driver/mysql"
 )
+
+//Sql日志输出
+type MyStdLogger struct {
+}
+
+func (m *MyStdLogger) Info(ctx context.Context, format string, v ...interface{}) {
+	//...
+}
+func (m *MyStdLogger) Debug(ctx context.Context, format string, v ...interface{}) {
+	//....
+}
+
+func (m *MyStdLogger) Warn(ctx context.Context, format string, v ...interface{}) {
+	//...
+}
+
+func (m *MyStdLogger) Error(ctx context.Context, format string, v ...interface{}) {
+	//....
+}
+
 
 func getConfig() (config Configs) {
     testConfig := `{"mysql": {
@@ -169,7 +114,9 @@ type Configs struct {
 func main() {
 
     configs := getConfig()
-    db, err := ploto.Open(configs.Mysql, nil)
+	defaultLogger := &MyStdLogger{}
+
+    db, err := ploto.Open(configs.Mysql, defaultLogger)
     if err != nil {
         panic(err)
     }
@@ -278,3 +225,79 @@ func main() {
 }
 
 ```
+
+## 数据库配置
+
+配置支持多数据库连接，格式如下：
+
+### mysql 
+```json
+{"mysql": {
+		"clients": {
+			"test":{
+				"host": "127.0.0.1",
+				"port": 3307,
+				"user": "test",
+				"password": "asfasdf@#sddfsdf",
+				"database": "test"
+			}
+		},
+		"default": {
+			"port": 3306,
+			"dialect": "mysql",
+			"pool": {
+				"maxIdleConns": 2,
+				"maxLeftTime": 60000, 
+				"maxOpenConns": 5
+			},
+			"dialectOptions": {
+				"parseTime":true,
+				"multiStatements": true,
+				"writeTimeout": "3000ms",
+				"readTimeout": "3000ms",
+				"timeout":"3000ms",
+				"parseTime": true,
+				"loc":"Local",
+
+			}	
+		}
+	}}
+```
+更多dialectOptions参数见: https://github.com/go-sql-driver/mysql#parameters
+### mssql
+
+```
+{"mssql": {
+		"clients": {
+	 
+			"test":{
+				"host": "127.0.0.1",
+				"user": "sa",
+				"password": "test123",
+				"database": "test",
+				"pool": {
+					"maxIdleConns": 20,
+					"maxLeftTime": 60000,
+					"maxOpenConns": 50
+				},
+				"dialectOptions": {
+					"dial timeout": "10"
+
+				}
+			}
+		},
+		"default": {
+			"port": 1433,
+			"dialect": "sqlserver", //or mssql
+			"pool": {
+				"maxIdleConns": 2,
+				"maxLeftTime": 60000,
+				"maxOpenConns": 5
+			},
+			"dialectOptions": {
+				"dial timeout": "3"
+			}
+		}
+	}}
+```
+更多dialectOptions 参数见:https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn
