@@ -1,8 +1,9 @@
 package ploto
 
 import (
-	"github.com/DATA-DOG/go-sqlmock"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
 )
 
 type Users struct {
@@ -128,4 +129,27 @@ func TestScanScalar(t *testing.T) {
 		// fmt.Printf("cnt = %d err:%+v", count, err)
 
 	}
+}
+
+func TestScanSlices(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	dataRows := sqlmock.NewRows([]string{"id", "name", "created_time", "updated_time"}).
+		AddRow(1, "1111", "2021-10-01 00:00:00", "2021-10-01 00:00:00")
+	mock.ExpectQuery("SELECT (.+) FROM users WHERE id<?").WithArgs(1).WillReturnRows(dataRows)
+
+	rows, err := db.Query("SELECT id,name,created_time,updated_time FROM users WHERE id = 1", 1)
+	if err != nil {
+		t.Errorf("error '%s' was not expected while retrieving mock rows", err)
+	}
+	defer rows.Close()
+	var user []*Users
+
+	err = ScanResult(rows, &user)
+	t.Logf("user result:%+v", user[0])
+
 }

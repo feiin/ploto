@@ -105,8 +105,15 @@ func ScanSlice(rows *sql.Rows, dest interface{}) error {
 
 	destType := reflect.TypeOf(dest)
 	sliceType := destType.Elem()
+
 	//slice
+	isPtr := false
 	itemType := sliceType.Elem()
+	if itemType.Kind() == reflect.Ptr {
+		itemType = itemType.Elem()
+		isPtr = true
+	}
+
 	sliceVal := reflect.Indirect(reflect.ValueOf(dest))
 
 	for rows.Next() {
@@ -122,7 +129,12 @@ func ScanSlice(rows *sql.Rows, dest interface{}) error {
 		if err != nil {
 			return err
 		}
-		sliceVal.Set(reflect.Append(sliceVal, sliceItem))
+
+		if isPtr {
+			sliceVal.Set(reflect.Append(sliceVal, sliceItem.Addr()))
+		} else {
+			sliceVal.Set(reflect.Append(sliceVal, sliceItem))
+		}
 
 	}
 
