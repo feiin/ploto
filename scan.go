@@ -5,11 +5,13 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"reflect"
-	"strings"
 	"time"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
-//valuesToMap  sql values转化为map
+// valuesToMap  sql values转化为map
 func valuesToMap(mapValue map[string]interface{}, values []interface{}, columns []string) {
 	for idx, column := range columns {
 
@@ -31,13 +33,17 @@ func valuesToMap(mapValue map[string]interface{}, values []interface{}, columns 
 	}
 }
 
-//initStructFieldTags
+// initStructFieldTags
 func initStructFieldTags(item reflect.Value, fieldTagMap *map[string]reflect.Value) {
 
 	typ := item.Type() //value’s type
-
-	//value NumField()
 	for i := 0; i < item.NumField(); i++ {
+		field := typ.Field(i)
+		// support anonymous field, struct embedding
+		if field.Anonymous {
+			initStructFieldTags(item.Field(i), fieldTagMap)
+			continue
+		}
 		tag, ok := typ.Field(i).Tag.Lookup("db")
 
 		if ok && tag != "" {
@@ -46,7 +52,7 @@ func initStructFieldTags(item reflect.Value, fieldTagMap *map[string]reflect.Val
 	}
 }
 
-//initStructValues
+// initStructValues
 func initStructValues(item reflect.Value, columns []string, values []interface{}) {
 	fieldTagMap := make(map[string]reflect.Value, len(columns))
 	initStructFieldTags(item, &fieldTagMap)
@@ -56,7 +62,7 @@ func initStructValues(item reflect.Value, columns []string, values []interface{}
 		if v, ok := fieldTagMap[column]; ok {
 			fieldValue = v
 		} else {
-			fieldValue = item.FieldByName(strings.Title(column))
+			fieldValue = item.FieldByName(cases.Title(language.Und, cases.NoLower).String(column))
 		}
 
 		if !fieldValue.CanSet() {
@@ -142,7 +148,7 @@ func ScanSlice(rows *sql.Rows, dest interface{}) error {
 
 }
 
-//Scan
+// Scan
 func Scan(rows *sql.Rows, dest interface{}) error {
 	//columns
 	columns, _ := rows.Columns()

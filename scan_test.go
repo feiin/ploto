@@ -8,9 +8,13 @@ import (
 
 type Users struct {
 	Id          int64  `db:"id"`
-	Name        string `db:"name"`
 	CreatedTime string `db:"created_time"`
 	UpdatedTime string `db:"updated_time"`
+	Name        string `db:"name"`
+}
+
+type UsersEx struct {
+	Users
 }
 
 func TestScanMap(t *testing.T) {
@@ -151,5 +155,34 @@ func TestScanSlices(t *testing.T) {
 
 	err = ScanResult(rows, &user)
 	t.Logf("user result:%+v", user[0])
+
+}
+
+func TestScanSlices2(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	dataRows := sqlmock.NewRows([]string{"id", "name", "created_time", "updated_time"}).
+		AddRow(1, "1111", "2021-10-01 00:00:00", "2021-10-01 00:00:00")
+	mock.ExpectQuery("SELECT (.+) FROM users WHERE id<?").WithArgs(1).WillReturnRows(dataRows)
+
+	rows, err := db.Query("SELECT id,name,created_time,updated_time FROM users WHERE id = 1", 1)
+	if err != nil {
+		t.Errorf("error '%s' was not expected while retrieving mock rows", err)
+	}
+	defer rows.Close()
+	var user []*UsersEx
+
+	err = ScanResult(rows, &user)
+	if len(user) == 0 {
+		t.Fatalf("scan userex struct error")
+	}
+	if user[0].CreatedTime != "2021-10-01 00:00:00" {
+		t.Fatalf("scan userex struct error")
+	}
+	t.Logf("userex result:%+v", user[0])
 
 }
