@@ -251,12 +251,12 @@ func main() {
 				"maxOpenConns": 5
 			},
 			"dialectOptions": {
-				"parseTime":true,
-				"multiStatements": true,
+				"parseTime":"true",
+				"multiStatements": "true",
 				"writeTimeout": "3000ms",
 				"readTimeout": "3000ms",
 				"timeout":"3000ms",
-				"parseTime": true,
+				"parseTime": "true",
 				"loc":"Local",
 
 			}	
