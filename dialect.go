@@ -21,21 +21,23 @@ type DialectConfig struct {
 	Default *DialectClientOption            `json:"default"`
 }
 
+type DialectClientOptionPool struct {
+	MaxIdleConns int `json:"maxIdleConns"`
+	MaxLeftTime  int `json:"maxLeftTime"`
+	MaxOpenConns int `json:"maxOpenConns"`
+}
+
 type DialectClientOption struct {
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-	Database string `json:"database"`
-	Dialect  string `json:"dialect"`
-	Logging  *bool  `json:"logging"`
-	Pool     *struct {
-		MaxIdleConns int `json:"maxIdleConns"`
-		MaxLeftTime  int `json:"maxLeftTime"`
-		MaxOpenConns int `json:"maxOpenConns"`
-	}
-	Charset        string            `json:"charset"`
-	DialectOptions map[string]string `json:"dialectOptions"`
+	Host           string                   `json:"host"`
+	Port           int                      `json:"port"`
+	User           string                   `json:"user"`
+	Password       string                   `json:"password"`
+	Database       string                   `json:"database"`
+	Dialect        string                   `json:"dialect"`
+	Logging        *bool                    `json:"logging"`
+	Pool           *DialectClientOptionPool `json:"pool"`
+	Charset        string                   `json:"charset"`
+	DialectOptions map[string]string        `json:"dialectOptions"`
 }
 
 type DialectDSN interface {
