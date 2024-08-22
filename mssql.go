@@ -3,11 +3,10 @@ package ploto
 import (
 	"fmt"
 	"net/url"
-	"reflect"
 	"strings"
 )
 
-//Mssql mssql dialector
+// Mssql mssql dialector
 type Mssql struct {
 }
 
@@ -51,29 +50,18 @@ type Mssql struct {
 		}
 	}
 **/
-func (m Mssql) GetDialectDSN(database string, config map[string]interface{}) string {
+func (m Mssql) GetDialectDSN(database string, config *DialectClientOption) string {
 	//https://github.com/denisenkom/go-mssqldb
 	//sqlserver://username:password@host:port/instance?param1=value&param2=value
 
-	params := []string{"sqlserver://", config["user"].(string), ":", url.QueryEscape(config["password"].(string)), "@", config["host"].(string), ":", fmt.Sprintf("%d", int(config["port"].(float64))), "?database=", config["database"].(string)}
+	params := []string{"sqlserver://", config.User, ":", url.QueryEscape(config.Password), "@", config.Host, ":", fmt.Sprintf("%d", config.Port), "?database=", config.Database}
 
-	if _, ok := config["dialectOptions"]; ok {
+	if config.DialectOptions != nil {
 		//存在
-		options := config["dialectOptions"].(map[string]interface{})
+		options := config.DialectOptions
 
 		for k, v := range options {
-			t := reflect.TypeOf(v)
-
-			switch t.Kind() {
-			case reflect.String:
-				params = append(params, fmt.Sprintf("&%s=%s", url.QueryEscape(k), url.QueryEscape(v.(string))))
-			case reflect.Float64:
-				params = append(params, fmt.Sprintf("&%s=%d", url.QueryEscape(k), int(v.(float64))))
-			case reflect.Bool:
-				params = append(params, fmt.Sprintf("&%s=%t", url.QueryEscape(k), v.(bool)))
-
-			}
-
+			params = append(params, fmt.Sprintf("&%s=%s", url.QueryEscape(k), url.QueryEscape(v)))
 		}
 	}
 

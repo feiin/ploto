@@ -3,11 +3,10 @@ package ploto
 import (
 	"fmt"
 	"net/url"
-	"reflect"
 	"strings"
 )
 
-//Mysql mysql dialector
+// Mysql mysql dialector
 type Mysql struct {
 }
 
@@ -54,34 +53,21 @@ type Mysql struct {
 		}
 	}
 **/
-func (m Mysql) GetDialectDSN(database string, config map[string]interface{}) string {
+func (m Mysql) GetDialectDSN(database string, config *DialectClientOption) string {
 	//https://github.com/go-sql-driver/mysql
 	//[driver[:password]@(host)][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
 
 	charset := "utf8mb4"
-	if _, ok := config["charset"]; ok {
-		charset = config["charset"].(string)
+	if len(config.Charset) > 0 {
+		charset = config.Charset
 	}
 
-	params := []string{config["user"].(string), ":", config["password"].(string), "@tcp(", config["host"].(string), ":", fmt.Sprintf("%d", int(config["port"].(float64))), ")/", config["database"].(string), "?charset=" + charset}
+	params := []string{config.User, ":", config.Password, "@tcp(", config.Host, ":", fmt.Sprintf("%d", config.Port), ")/", config.Database, "?charset=" + charset}
 
-	if _, ok := config["dialectOptions"]; ok {
+	if config.DialectOptions != nil {
 		//存在
-		options := config["dialectOptions"].(map[string]interface{})
-
-		for k, v := range options {
-			t := reflect.TypeOf(v)
-
-			switch t.Kind() {
-			case reflect.String:
-				params = append(params, fmt.Sprintf("&%s=%s", k, url.QueryEscape(v.(string))))
-			case reflect.Float64:
-				params = append(params, fmt.Sprintf("&%s=%d", k, int(v.(float64))))
-			case reflect.Bool:
-				params = append(params, fmt.Sprintf("&%s=%t", k, v.(bool)))
-
-			}
-
+		for k, v := range config.DialectOptions {
+			params = append(params, fmt.Sprintf("&%s=%s", k, url.QueryEscape(v)))
 		}
 	}
 

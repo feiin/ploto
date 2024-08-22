@@ -57,9 +57,9 @@ func TestGetClientConfig(t *testing.T) {
 
 	clientConfig := driver.getClientConfig("test")
 	t.Logf("config %+v", clientConfig)
-	if int(clientConfig["port"].(float64)) != 3307 {
+	if clientConfig.Port != 3307 {
 
-		t.Errorf("get port failed %v", clientConfig["port"])
+		t.Errorf("get port failed %d", clientConfig.Port)
 	}
 
 }
