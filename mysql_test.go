@@ -25,7 +25,7 @@ func getConfigMysql() (config Configs) {
 				"maxOpenConns": 5
 			},
 			"dialectOptions": {
-				"parseTime":true
+				"parseTime":"true"
 			}	
 		}
 	}}`
@@ -57,6 +57,6 @@ func TestMysqlDSNConfig(t *testing.T) {
 	t.Logf("dnspath %s", dnsPath)
 
 	if dnsPath != "test:asfasdf@#sddfsdf@tcp(127.0.0.1:3307)/test?charset=utf8mb4&parseTime=true" {
-		t.Errorf("mysql GetDialectDSN error ")
+		t.Errorf("mysql GetDialectDSN error")
 	}
 }

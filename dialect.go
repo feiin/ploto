@@ -17,30 +17,39 @@ type Dialect struct {
 }
 
 type DialectConfig struct {
-	Clients map[string]interface{} `json:"clients"`
-	Default map[string]interface{} `json:"default"`
+	Clients map[string]*DialectClientOption `json:"clients"`
+	Default *DialectClientOption            `json:"default"`
+}
+
+type DialectClientOption struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Database string `json:"database"`
+	Dialect  string `json:"dialect"`
+	Logging  *bool  `json:"logging"`
+	Pool     *struct {
+		MaxIdleConns int `json:"maxIdleConns"`
+		MaxLeftTime  int `json:"maxLeftTime"`
+		MaxOpenConns int `json:"maxOpenConns"`
+	}
+	Charset        string            `json:"charset"`
+	DialectOptions map[string]string `json:"dialectOptions"`
 }
 
 type DialectDSN interface {
-	GetDialectDSN(database string, config map[string]interface{}) string
+	GetDialectDSN(database string, config *DialectClientOption) string
 }
 
-//CreateClient  create the db pool for  the database
+// CreateClient  create the db pool for  the database
 func (dialect *Dialect) CreateClient(database string) (db *DB, err error) {
 
 	config := dialect.getClientConfig(database)
 	ctx := context.Background()
 	var dsn DialectDSN = nil
-	var dialector = ""
-	var dbName = ""
-
-	if v, ok := config["dialect"]; ok {
-		dialector = v.(string)
-	}
-
-	if v, ok := config["database"]; ok {
-		dbName = v.(string)
-	}
+	var dialector = config.Dialect
+	var dbName = config.Database
 
 	if len(dbName) == 0 {
 		return nil, errors.New("invalid database config")
@@ -68,18 +77,16 @@ func (dialect *Dialect) CreateClient(database string) (db *DB, err error) {
 	maxLeftTime := 7200
 	maxOpenConns := 50
 
-	pool := config["pool"].(map[string]interface{})
-
-	if v, ok := pool["maxIdleConns"]; ok {
-		maxIdleConns = int(v.(float64))
+	if config.Pool != nil && config.Pool.MaxIdleConns > 0 {
+		maxIdleConns = config.Pool.MaxIdleConns
 	}
 
-	if v, ok := pool["maxLeftTime"]; ok {
-		maxLeftTime = int(v.(float64))
+	if config.Pool != nil && config.Pool.MaxLeftTime > 0 {
+		maxLeftTime = config.Pool.MaxLeftTime
 	}
 
-	if v, ok := pool["maxOpenConns"]; ok {
-		maxOpenConns = int(v.(float64))
+	if config.Pool != nil && config.Pool.MaxOpenConns > 0 {
+		maxOpenConns = config.Pool.MaxOpenConns
 	}
 
 	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
@@ -97,8 +104,8 @@ func (dialect *Dialect) CreateClient(database string) (db *DB, err error) {
 	//set db to the clients
 	db = &DB{DB: driverDB}
 
-	if _, ok := config["logging"]; ok {
-		db.LogSql = config["logging"].(bool)
+	if config.Logging != nil {
+		db.LogSql = *config.Logging
 	}
 
 	// logger.Info("create mysql db %s client success", database)
@@ -107,38 +114,62 @@ func (dialect *Dialect) CreateClient(database string) (db *DB, err error) {
 
 }
 
-//Use get the db's conn
+// Use get the db's conn
 func (dialect *Dialect) Use(database string) (db *DB) {
 
 	client, _ := dialect.Clients[database]
 	return client
 }
 
-//GetClientConfig get the client config
-func (dialect *Dialect) getClientConfig(clientName string) (config map[string]interface{}) {
+// GetClientConfig get the client config
+func (dialect *Dialect) getClientConfig(clientName string) (config *DialectClientOption) {
 
-	config = make(map[string]interface{}, 10)
-	for k, v := range dialect.Configs.Default {
-		config[k] = v
-	}
+	// var config *DialectClientOption{}
+	// for k, v := range dialect.Configs.Default {
+	// 	config[k] = v
+	// }
 
 	clients := dialect.Configs.Clients
-
 	if _, ok := clients[clientName]; !ok {
-		return config
+		return nil
 	}
 
 	//存在
-	client := clients[clientName].(map[string]interface{})
+	config = clients[clientName]
 
-	for k, v := range client {
-		config[k] = v
+	if dialect.Configs.Default == nil {
+		return config
+	}
+
+	if len(config.Dialect) == 0 {
+		config.Dialect = dialect.Configs.Default.Dialect
+	}
+
+	// use default pool if client not set
+	if config.Pool == nil {
+		config.Pool = dialect.Configs.Default.Pool
+	}
+
+	if config.Logging == nil {
+		config.Logging = dialect.Configs.Default.Logging
+	}
+
+	if config.DialectOptions == nil {
+		config.DialectOptions = dialect.Configs.Default.DialectOptions
+	}
+
+	if config.Port == 0 {
+		config.Port = dialect.Configs.Default.Port
+	}
+
+	if len(config.User) == 0 {
+		config.User = dialect.Configs.Default.User
 	}
 
 	return config
 }
 
-//Close  Close the database
+// Close  Close the database
 func (dialect *Dialect) Close() error {
 
 	ctx := context.Background()
